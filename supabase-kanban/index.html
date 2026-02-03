@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Supabase Kanban</title>
+  <style>
+    :root {
+      --bg: #0f1115; --card:#171a21; --text:#e8e8e8; --muted:#9aa4b2; --accent:#4f8cff;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; background:var(--bg); color:var(--text); }
+    header { padding:16px 20px; border-bottom:1px solid #222; display:flex; align-items:center; justify-content:space-between; }
+    header h1 { margin:0; font-size:18px; }
+    header .muted { color:var(--muted); font-size:12px; }
+    main { padding:20px; }
+    .board { display:grid; grid-template-columns: repeat(3, minmax(240px, 1fr)); gap:16px; }
+    .col { background:var(--card); border:1px solid #222; border-radius:12px; padding:12px; min-height:60vh; }
+    .col h2 { margin:0 0 10px 0; font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; }
+    .card { background:#1f2430; border:1px solid #2a3140; border-radius:10px; padding:10px; margin-bottom:10px; cursor:grab; }
+    .card small { color:var(--muted); }
+    .add { display:flex; gap:8px; margin-bottom:12px; }
+    input, button { border-radius:10px; border:1px solid #2a3140; padding:10px; background:#11151d; color:var(--text); }
+    button { background:var(--accent); border:none; color:white; cursor:pointer; }
+    button.secondary { background:#2a3140; }
+    .row { display:flex; gap:8px; align-items:center; }
+    .status-pill { font-size:11px; color:#b7c2d0; padding:2px 6px; border:1px solid #334; border-radius:999px; }
+    .empty { color:var(--muted); font-size:12px; }
+    .drag-over { outline:2px dashed var(--accent); }
+    @media (max-width: 900px) { .board { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Supabase Kanban</h1>
+      <div class="muted">Backlog / In Progress / Done</div>
+    </div>
+    <div class="row">
+      <button class="secondary" id="refreshBtn">새로고침</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="add">
+      <input id="titleInput" placeholder="새 카드 제목" style="flex:1" />
+      <button id="addBtn">추가</button>
+    </div>
+
+    <div class="board">
+      <section class="col" data-status="backlog">
+        <h2>Backlog</h2>
+        <div class="list" id="backlog"></div>
+      </section>
+      <section class="col" data-status="in_progress">
+        <h2>In Progress</h2>
+        <div class="list" id="in_progress"></div>
+      </section>
+      <section class="col" data-status="done">
+        <h2>Done</h2>
+        <div class="list" id="done"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://dqisuksvhoetubhqqmke.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_mT7ZQ--RNKlKNlHDXr5Xdw_BLcYPjSH";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const lists = {
+      backlog: document.getElementById('backlog'),
+      in_progress: document.getElementById('in_progress'),
+      done: document.getElementById('done'),
+    };
+
+    const statusLabel = {
+      backlog: 'Backlog',
+      in_progress: 'In Progress',
+      done: 'Done'
+    };
+
+    async function fetchTasks() {
+      Object.values(lists).forEach(el => el.innerHTML = '<div class="empty">로딩중…</div>');
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        Object.values(lists).forEach(el => el.innerHTML = `<div class="empty">에러: ${error.message}</div>`);
+        return;
+      }
+
+      Object.values(lists).forEach(el => el.innerHTML = '');
+      const grouped = { backlog: [], in_progress: [], done: [] };
+      data.forEach(t => grouped[t.status].push(t));
+
+      for (const status of Object.keys(grouped)) {
+        if (grouped[status].length === 0) {
+          lists[status].innerHTML = '<div class="empty">비어있음</div>';
+          continue;
+        }
+        grouped[status].forEach(task => lists[status].appendChild(renderCard(task)));
+      }
+    }
+
+    function renderCard(task) {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.draggable = true;
+      div.dataset.id = task.id;
+      div.dataset.status = task.status;
+      div.innerHTML = `
+        <div class="row" style="justify-content:space-between;">
+          <strong>${task.title}</strong>
+          <span class="status-pill">${statusLabel[task.status]}</span>
+        </div>
+        <small>${new Date(task.created_at).toLocaleString()}</small>
+      `;
+
+      div.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', task.id);
+      });
+
+      return div;
+    }
+
+    async function addTask(title) {
+      const { error } = await supabase.from('tasks').insert({ title, status: 'backlog' });
+      if (error) alert(error.message);
+      await fetchTasks();
+    }
+
+    async function moveTask(id, status) {
+      const { error } = await supabase.from('tasks').update({ status }).eq('id', id);
+      if (error) alert(error.message);
+      await fetchTasks();
+    }
+
+    document.getElementById('addBtn').addEventListener('click', async () => {
+      const input = document.getElementById('titleInput');
+      const title = input.value.trim();
+      if (!title) return;
+      input.value = '';
+      await addTask(title);
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', fetchTasks);
+
+    // drag & drop
+    document.querySelectorAll('.col').forEach(col => {
+      col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('drag-over'); });
+      col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+      col.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        col.classList.remove('drag-over');
+        const id = e.dataTransfer.getData('text/plain');
+        const status = col.dataset.status;
+        await moveTask(id, status);
+      });
+    });
+
+    fetchTasks();
+  </script>
+</body>
+</html>

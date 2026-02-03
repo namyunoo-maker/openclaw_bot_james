@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>James — OpenClaw Assistant</title>
+  <style>
+    :root { --bg:#0f1115; --card:#171a21; --text:#e8e8e8; --muted:#9aa4b2; --accent:#4f8cff; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif; background:var(--bg); color:var(--text); }
+    header { padding:28px 20px; border-bottom:1px solid #222; }
+    header h1 { margin:0 0 6px 0; font-size:22px; }
+    header p { margin:0; color:var(--muted); }
+    main { padding:24px 20px; max-width:960px; margin:0 auto; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; }
+    .card { background:var(--card); border:1px solid #222; border-radius:12px; padding:16px; }
+    .card h3 { margin:0 0 8px 0; font-size:16px; }
+    .pill { display:inline-block; font-size:12px; color:#b7c2d0; border:1px solid #334; border-radius:999px; padding:2px 8px; margin-right:6px; }
+    .cta { margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { background:var(--accent); color:white; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; text-decoration:none; }
+    .btn.secondary { background:#2a3140; }
+    footer { padding:20px; color:var(--muted); text-align:center; font-size:12px; }
+    ul { margin:0; padding-left:18px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>James ✨ — OpenClaw 개인 비서</h1>
+    <p>업무 자동화 · 캘린더/리마인더 · 파일 정리 · 브라우저 작업 · MCP 연동까지 한 번에</p>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card">
+        <h3>업무 루프 자동화</h3>
+        <span class="pill">아침/저녁 리포트</span>
+        <span class="pill">Gate 체크</span>
+        <ul>
+          <li>오늘 할 일 요약 + 마감 임박 알림</li>
+          <li>Gate3/4/5 진행 체크</li>
+          <li>JIRA 업데이트 초안 제안</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>캘린더/리마인더 관리</h3>
+        <span class="pill">Apple 캘린더</span>
+        <span class="pill">Reminders</span>
+        <ul>
+          <li>일정 추가/수정/반복 설정</li>
+          <li>업무 리스트 정리와 요약</li>
+          <li>정기 리마인더 자동 생성</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>파일/다운로드 정리</h3>
+        <span class="pill">정리 제안</span>
+        <span class="pill">안전 삭제</span>
+        <ul>
+          <li>불필요 설치파일/압축파일 분류</li>
+          <li>중복/임시 파일 정리</li>
+          <li>승인 후 삭제 실행</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>브라우저 작업</h3>
+        <span class="pill">Relay</span>
+        <span class="pill">자동화</span>
+        <ul>
+          <li>검색/폼 작성/정보 수집</li>
+          <li>업무 페이지 정리</li>
+          <li>필요 시 새 탭 활용</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>MCP 확장</h3>
+        <span class="pill">Filesystem</span>
+        <span class="pill">기타 서버</span>
+        <ul>
+          <li>로컬 파일 읽기/쓰기</li>
+          <li>외부 서비스 연동</li>
+          <li>커스텀 자동화 확장</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>재미 모드</h3>
+        <span class="pill">OpenPet</span>
+        <span class="pill">게임</span>
+        <ul>
+          <li>가상 펫 키우기</li>
+          <li>간단한 게임/체스</li>
+          <li>음성/미디어 플레이</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="cta">
+      <a class="btn" href="#" onclick="alert('원하시는 기능을 요청해주세요!')">기능 요청하기</a>
+      <a class="btn secondary" href="#" onclick="alert('자동화 루프 설정을 시작합니다.')">업무 루프 시작</a>
+    </div>
+  </main>
+
+  <footer>
+    Powered by OpenClaw · 개인화된 업무 자동화 파트너
+  </footer>
+</body>
+</html>
